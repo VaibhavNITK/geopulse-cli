@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Copy Code Handler
     copyBtn.addEventListener("click", () => {
-        const text = "curl -fsSL https://raw.githubusercontent.com/VaibhavNITK/NITK-IP-GEOLOCATION/main/install.sh | bash";
+        const text = "curl -fsSL https://raw.githubusercontent.com/VaibhavNITK/geopulse-cli/main/install.sh | bash";
         navigator.clipboard.writeText(text).then(() => {
             copyBtn.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i>';
             setTimeout(() => {

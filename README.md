@@ -36,13 +36,13 @@ GeoPulse is designed to be showcased seamlessly across both media:
 Run this single command in your terminal (Linux, macOS, or Termux):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/VaibhavNITK/NITK-IP-GEOLOCATION/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/VaibhavNITK/geopulse-cli/main/install.sh | bash
 ```
 
 ### 2. Live Web Showcase Deployment
 
 Deploy the web application to Vercel or Netlify with zero configuration:
-- Simply import this GitHub repository (`VaibhavNITK/NITK-IP-GEOLOCATION`) into **Vercel** or **Netlify**.
+- Simply import this GitHub repository (`VaibhavNITK/geopulse-cli`) into **Vercel** or **Netlify**.
 - The included static configuration (`index.html`, `style.css`, `app.js`, `vercel.json`) will host the live web portal automatically!
 
 ---
@@ -116,7 +116,7 @@ flowchart TD
 ## 📜 Resume Highlights & Links
 
 - **Live Web Showcase:** `https://geopulse-net.vercel.app` *(or your deployed Vercel URL)*
-- **GitHub Repository:** [github.com/VaibhavNITK/NITK-IP-GEOLOCATION](https://github.com/VaibhavNITK/NITK-IP-GEOLOCATION)
+- **GitHub Repository:** [github.com/VaibhavNITK/geopulse-cli](https://github.com/VaibhavNITK/geopulse-cli)
 
 ---
 
