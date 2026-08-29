@@ -1,107 +1,127 @@
-# GeoPulse CLI — High-Performance Network Geolocation & Threat Intelligence Engine
+# ⚡ GeoPulse Quant — Network Geolocation & Intelligence Suite (CLI & Web)
 
-![Version](https://img.shields.io/badge/version-2.0.0-cyan.svg)
+![Version](https://img.shields.io/badge/version-2.5.0-00f2fe.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![Web App](https://img.shields.io/badge/Web%20App-Live%20Dashboard-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Termux-orange.svg)
 
-**GeoPulse CLI** is a lightweight, high-performance network geolocation & threat intelligence suite engineered in Python and Web technology. It enables engineers, system administrators, and security analysts to query IP addresses, hostnames, and ASNs with **sub-second latency**, interactive geospatial mapping, multi-provider failover, and structured JSON output options.
+**GeoPulse Quant** is a high-performance, low-latency network intelligence engine engineered for both **terminal command-line (CLI)** and **interactive web showcase**. Designed with systems engineering and quantitative infrastructure principles, GeoPulse offers microsecond-precision TCP round-trip latency benchmarking, reverse DNS PTR resolution, BGP Autonomous System (ASN) analysis, and multi-threaded parallel IP tracing.
 
 ---
 
-## 🌟 Key Features
+## 🌐 Dual Ecosystem: Web App & Terminal CLI
 
-- ⚡ **Sub-Second Geolocation Queries:** Responds in `<50ms` using multi-provider HTTP/REST data pipelines (`ip-api`, `ipinfo`, `ipapi`).
-- 🛡️ **Failover Data Pipeline:** Automatic fallback mechanism ensures zero downtime even during upstream rate-limits.
-- 📍 **Interactive Geospatial Mapping:** Embedded terminal ASCII map + interactive Leaflet.js Web Portal dashboard.
-- 🔍 **Security & ASN Analytics:** Detects ISP, Organization, Autonomous System (ASN), Proxy/VPN flags, and timezone metrics.
-- 📦 **Automated 1-Step Installer:** Cross-platform shell installer supporting Linux, macOS, Debian/Ubuntu, Arch, and Termux.
-- 📊 **Structured JSON & Batch Export:** Export raw trace outputs as JSON or process bulk IP lists (`geopulse -b targets.txt`).
+GeoPulse is designed to be showcased seamlessly across both media:
+
+1. **🌐 Interactive Web Portal Dashboard:**
+   - Real-time IP & domain geolocation search.
+   - Dynamic Leaflet.js interactive dark map with custom pulsating location pins.
+   - Automatic visitor public IP geolocation detection on load.
+   - Ready for instant deployment on Vercel, Netlify, or GitHub Pages.
+
+2. **💻 Terminal CLI Tool (`geopulse.py`):**
+   - **Nanosecond TCP Handshake RTT Benchmarking:** Calculates `Min RTT`, `Avg RTT`, `Max RTT`, and `Jitter` over active sockets.
+   - **Reverse DNS & PTR Resolution:** Resolves canonical hostnames and pointers.
+   - **Multi-Threaded Parallel Execution:** Traces 100+ IPs concurrently using `ThreadPoolExecutor`.
+   - **Multi-Provider Failover:** Automatic fallback pipeline across primary & backup REST APIs.
+   - **Structured Data Export:** Output raw trace metrics as JSON or interactive ANSI color tables.
 
 ---
 
-## 🚀 Quick Installation
+## 🚀 Installation & Web Showcase
 
-### Option 1: One-Line Automatic Install (Recommended)
+### 1. One-Line Terminal CLI Installer
 
-Run the following command in your terminal:
+Run this single command in your terminal (Linux, macOS, or Termux):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/VaibhavNITK/NITK-IP-GEOLOCATION/main/install.sh | bash
 ```
 
-### Option 2: Manual Clone & Setup
+### 2. Live Web Showcase Deployment
 
-```bash
-git clone https://github.com/VaibhavNITK/NITK-IP-GEOLOCATION.git
-cd NITK-IP-GEOLOCATION
-chmod +x install.sh
-./install.sh
-```
+Deploy the web application to Vercel or Netlify with zero configuration:
+- Simply import this GitHub repository (`VaibhavNITK/NITK-IP-GEOLOCATION`) into **Vercel** or **Netlify**.
+- The included static configuration (`index.html`, `style.css`, `app.js`, `vercel.json`) will host the live web portal automatically!
 
 ---
 
 ## 💻 CLI Usage Guide
 
-### 1. Launch Interactive Terminal Menu
+### Trace Target Host with TCP Latency Benchmarking
 ```bash
-geopulse
-```
-
-### 2. Trace Specific IP or Hostname
-```bash
+geopulse -t deshaw.com
 geopulse -t 8.8.8.8
-geopulse -t github.com
 ```
 
-### 3. Trace Your Own Public IP
+### Trace Your Local Public IP Diagnostics
 ```bash
 geopulse -m
 ```
 
-### 4. Output Raw JSON Format
+### Output Structured JSON Format
 ```bash
 geopulse -t 1.1.1.1 --json
 ```
 
-### 5. Batch Process IP List
+### High-Throughput Parallel Batch IP Processing
 ```bash
-geopulse -b ips.txt
+geopulse -b targets.txt
 ```
 
 ---
 
-## 🌐 Web Portal & Live Dashboard
+## 🧪 Terminal Output Demo
 
-The project includes an interactive web dashboard built with HTML5, CSS3 Glassmorphism, and Leaflet.js.
-
-- **Auto-Detection:** Detects visitor's public IP location instantly.
-- **Search Engine:** Trace any target domain or IP.
-- **Interactive Dark Map:** Pulsating location pin with CartoDB dark tile theme.
-
-### Deploying to Vercel
-Simply push to GitHub and import into Vercel — the included `vercel.json` will build and host the static web portal automatically!
+```
+  ✔ Geolocation & Network Diagnostics Complete (324.99ms via ip-api (Primary))
+  ================================================================
+  Target Host              ▶  deshaw.com -> 104.18.36.211
+  Reverse DNS (PTR)        ▶  N/A
+  Location / Country       ▶  Toronto, Ontario | Canada (CA)
+  Coordinates              ▶  43.6532, -79.3832
+  Timezone                 ▶  America/Toronto
+  Network Provider (ISP)   ▶  Cloudflare, Inc.
+  Organization             ▶  Cloudflare, Inc.
+  BGP Autonomous System    ▶  AS13335 Cloudflare, Inc.
+  Active Ports Probed      ▶  53, 80, 443, 8080
+  ----------------------------------------------------------------
+  ⚡ Low-Latency TCP Handshake Metrics (Port 80/443):
+     Min RTT: 48.165 ms | Avg RTT: 56.381 ms | Max RTT: 62.191 ms | Jitter: 14.026 ms
+  ================================================================
+  📍 Google Maps URL: https://maps.google.com/?q=43.6532,-79.3832
+```
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ Architecture Flowchart
 
 ```mermaid
 flowchart TD
-    User([User / Terminal CLI / Web]) --> Input{IP or Domain?}
-    Input -->|Domain| DNS[DNS Resolver]
-    Input -->|IP| Provider1[ip-api.com API]
-    DNS --> Provider1
-    Provider1 -->|Success| Parser[Payload Parser & Metric Engine]
-    Provider1 -->|Fail / Limit| Provider2[ipapi.co Fallback API]
-    Provider2 --> Parser
-    Parser --> Output[Terminal ANSI / ASCII Map / JSON / Web Map]
+    User([User Target Request]) --> Resolve[Resolve Domain & Reverse DNS PTR]
+    Resolve --> SocketProbe[TCP Handshake Latency & Jitter Probe]
+    Resolve --> FailoverEngine[Multi-Provider REST Geolocation Failover]
+    FailoverEngine -->|Primary: ip-api| DataParser[Payload Aggregator]
+    FailoverEngine -->|Failover: ipapi| DataParser
+    SocketProbe --> DataParser
+    DataParser --> OutputChoice{Output Target}
+    OutputChoice -->|Terminal CLI| ANSI[Interactive ANSI Dashboard & ASCII Map]
+    OutputChoice -->|Web Portal| Leaflet[Leaflet.js Geospatial Map & UI Cards]
+    OutputChoice -->|Automation| JSON[Structured JSON Payload]
 ```
 
 ---
 
-## 📜 License
+## 📜 Resume Highlights & Links
+
+- **Live Web Showcase:** `https://geopulse-net.vercel.app` *(or your deployed Vercel URL)*
+- **GitHub Repository:** [github.com/VaibhavNITK/NITK-IP-GEOLOCATION](https://github.com/VaibhavNITK/NITK-IP-GEOLOCATION)
+
+---
+
+## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for details.
 
-Developed with ❤️ by **Vaibhav Agrawal** (D. E. Shaw & Co. / NITK Surathkal).
+Engineered by **Vaibhav Agrawal** — Member of Technical Staff, D. E. Shaw & Co. | NITK Surathkal.
