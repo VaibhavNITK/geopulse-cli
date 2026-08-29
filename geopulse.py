@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-GeoPulse CLI v2.5 — Advanced Network Geolocation, Latency Benchmarking & Intelligence Engine
-Tailored for Quant Infrastructure & Low-Latency Systems Engineering.
+GeoPulse CLI v2.5 — High-Performance Network Geolocation, Latency Benchmarking & Intelligence Engine
+Tailored for Systems Engineering & Low-Latency Network Infrastructure.
 Author: Vaibhav Agrawal (D. E. Shaw & Co. / NITK)
 License: MIT
 """
@@ -34,7 +34,7 @@ BANNER = f"""{CYAN}{BOLD}
  / / __/ _ \/ __ \ / /_/ / / / / /   / / / /
 / /_/ /  __/ /_/ // ____/ / / / /___/ / / / 
 \____/\___/\____//_/   /_/ /_/\____/_/_/_/  
-{RESET}{DIM} Quant-Grade Low-Latency Network Intelligence & Geolocation Engine v2.5{RESET}
+{RESET}{DIM} High-Performance Low-Latency Network Intelligence & Geolocation Engine v2.5{RESET}
 """
 
 def print_banner():
@@ -115,7 +115,7 @@ def fetch_geolocation(ip_address=""):
     # Primary Provider: ip-api.com
     url1 = f"http://ip-api.com/json/{ip_address}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query,mobile,proxy,hosting"
     try:
-        req = urllib.request.Request(url1, headers={'User-Agent': 'GeoPulse-Quant/2.5'})
+        req = urllib.request.Request(url1, headers={'User-Agent': 'GeoPulse-CLI/2.5'})
         with urllib.request.urlopen(req, timeout=2.5) as resp:
             data = json.loads(resp.read().decode('utf-8'))
             exec_time = round((time.perf_counter_ns() - start_ns) / 1e6, 2)
@@ -129,7 +129,7 @@ def fetch_geolocation(ip_address=""):
     # Secondary Failover: ipapi.co
     url2 = f"https://ipapi.co/{ip_address}/json/" if ip_address else "https://ipapi.co/json/"
     try:
-        req = urllib.request.Request(url2, headers={'User-Agent': 'GeoPulse-Quant/2.5'})
+        req = urllib.request.Request(url2, headers={'User-Agent': 'GeoPulse-CLI/2.5'})
         with urllib.request.urlopen(req, timeout=2.5) as resp:
             raw = json.loads(resp.read().decode('utf-8'))
             exec_time = round((time.perf_counter_ns() - start_ns) / 1e6, 2)
@@ -155,7 +155,7 @@ def fetch_geolocation(ip_address=""):
 
     return {"status": "fail", "message": "Failed to query IP geolocation across all upstream endpoints."}
 
-def display_quant_report(target_raw, ip, ptr, data, latency_stats, open_ports, as_json=False):
+def display_report(target_raw, ip, ptr, data, latency_stats, open_ports, as_json=False):
     if as_json:
         combined = {
             "query_target": target_raw,
@@ -211,7 +211,7 @@ def process_single_target(target, as_json=False):
     geo_data = fetch_geolocation(ip)
     latency_stats = measure_tcp_latency(ip)
     open_ports = probe_common_ports(ip)
-    display_quant_report(target, ip, ptr, geo_data, latency_stats, open_ports, as_json=as_json)
+    display_report(target, ip, ptr, geo_data, latency_stats, open_ports, as_json=as_json)
 
 def process_batch(file_path, as_json=False):
     if not os.path.exists(file_path):
@@ -221,7 +221,7 @@ def process_batch(file_path, as_json=False):
     with open(file_path, 'r') as f:
         targets = [line.strip() for line in f if line.strip()]
 
-    print(f"  {BOLD}{CYAN}🚀 Executing Parallel Quant Batch Lookup for {len(targets)} Targets...{RESET}\n")
+    print(f"  {BOLD}{CYAN}🚀 Executing Parallel High-Throughput Batch Lookup for {len(targets)} Targets...{RESET}\n")
 
     def run_worker(t):
         ip, ptr = resolve_target(t)
@@ -249,13 +249,13 @@ def process_batch(file_path, as_json=False):
 def interactive_menu():
     print_banner()
     while True:
-        print(f"  {BOLD}{CYAN}[ 1 ]{RESET} Quant Target Trace (IP / Hostname + TCP Latency Benchmarking)")
+        print(f"  {BOLD}{CYAN}[ 1 ]{RESET} Target Network Trace (IP / Hostname + TCP Latency Benchmarking)")
         print(f"  {BOLD}{CYAN}[ 2 ]{RESET} Self Public Network Diagnostics (Your IP + Latency)")
         print(f"  {BOLD}{CYAN}[ 3 ]{RESET} High-Throughput Parallel Batch IP Trace")
-        print(f"  {BOLD}{CYAN}[ 4 ]{RESET} About GeoPulse Quant Suite")
+        print(f"  {BOLD}{CYAN}[ 4 ]{RESET} About GeoPulse Engine")
         print(f"  {BOLD}{RED}[ x ]{RESET} Exit System\n")
 
-        choice = input(f"  {BOLD}{YELLOW}GeoPulse-Quant >> {RESET}").strip().lower()
+        choice = input(f"  {BOLD}{YELLOW}GeoPulse >> {RESET}").strip().lower()
 
         if choice in ["x", "exit", "q", "quit"]:
             print(f"\n  {GREEN}Shutting down GeoPulse Engine. Bye!{RESET}\n")
@@ -277,7 +277,7 @@ def interactive_menu():
                     process_single_target(t)
         elif choice == "4":
             print_banner()
-            print(f"  {BOLD}GeoPulse Quant Engine v2.5{RESET}")
+            print(f"  {BOLD}GeoPulse Engine v2.5{RESET}")
             print(f"  Engineer: Vaibhav Agrawal (D. E. Shaw & Co. / NITK)")
             print(f"  Features: Microsecond RTT Benchmarking, Threaded Failover, Reverse DNS PTR, Port Scanning")
             print(f"  License: MIT\n")
@@ -288,7 +288,7 @@ def interactive_menu():
         print_banner()
 
 def main():
-    parser = argparse.ArgumentParser(description="GeoPulse CLI v2.5 — Quant Network Geolocation & Latency Engine")
+    parser = argparse.ArgumentParser(description="GeoPulse CLI v2.5 — High-Performance Network Geolocation & Latency Engine")
     parser.add_argument("-t", "--target", help="IP address or hostname to trace")
     parser.add_argument("-m", "--my-ip", action="store_true", help="Diagnostics for local public IP")
     parser.add_argument("-j", "--json", action="store_true", help="Output complete raw payload as JSON")
