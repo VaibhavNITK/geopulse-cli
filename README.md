@@ -1,12 +1,17 @@
-# ⚡ GeoPulse Quant — Network Geolocation & Intelligence Suite (CLI & Web)
+# ⚡ GeoPulse — High-Performance Network Geolocation & Intelligence Suite (CLI & Web)
 
 ![Version](https://img.shields.io/badge/version-2.5.0-00f2fe.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
-![Web App](https://img.shields.io/badge/Web%20App-Live%20Dashboard-brightgreen.svg)
+![Live Web Showcase](https://img.shields.io/badge/Web%20App-Live%20Dashboard-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Termux-orange.svg)
 
-**GeoPulse Quant** is a high-performance, low-latency network intelligence engine engineered for both **terminal command-line (CLI)** and **interactive web showcase**. Designed with systems engineering and quantitative infrastructure principles, GeoPulse offers microsecond-precision TCP round-trip latency benchmarking, reverse DNS PTR resolution, BGP Autonomous System (ASN) analysis, and multi-threaded parallel IP tracing.
+🔗 **Live Web Application:** [https://geopulse-f5tx5ivbx-vaibhavnitks-projects.vercel.app/](https://geopulse-f5tx5ivbx-vaibhavnitks-projects.vercel.app/)  
+📂 **GitHub Repository:** [https://github.com/VaibhavNITK/geopulse-cli](https://github.com/VaibhavNITK/geopulse-cli)
+
+---
+
+**GeoPulse** is a high-performance, low-latency network intelligence suite engineered for both **terminal command-line (CLI)** and an **interactive web showcase**. Built with systems engineering and networking principles, GeoPulse provides microsecond-precision TCP round-trip latency benchmarking, reverse DNS PTR resolution, BGP Autonomous System (ASN) analysis, and multi-threaded parallel IP tracing.
 
 ---
 
@@ -18,7 +23,7 @@ GeoPulse is designed to be showcased seamlessly across both media:
    - Real-time IP & domain geolocation search.
    - Dynamic Leaflet.js interactive dark map with custom pulsating location pins.
    - Automatic visitor public IP geolocation detection on load.
-   - Ready for instant deployment on Vercel, Netlify, or GitHub Pages.
+   - Deployed live on Vercel: [https://geopulse-f5tx5ivbx-vaibhavnitks-projects.vercel.app/](https://geopulse-f5tx5ivbx-vaibhavnitks-projects.vercel.app/)
 
 2. **💻 Terminal CLI Tool (`geopulse.py`):**
    - **Nanosecond TCP Handshake RTT Benchmarking:** Calculates `Min RTT`, `Avg RTT`, `Max RTT`, and `Jitter` over active sockets.
@@ -41,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/VaibhavNITK/geopulse-cli/main/insta
 
 ### 2. Live Web Showcase Deployment
 
-Deploy the web application to Vercel or Netlify with zero configuration:
+The web application is live on Vercel. You can also deploy to your own Vercel or Netlify account:
 - Simply import this GitHub repository (`VaibhavNITK/geopulse-cli`) into **Vercel** or **Netlify**.
 - The included static configuration (`index.html`, `style.css`, `app.js`, `vercel.json`) will host the live web portal automatically!
 
@@ -113,9 +118,9 @@ flowchart TD
 
 ---
 
-## 📜 Resume Highlights & Links
+## 📜 Live Links & Showcase
 
-- **Live Web Showcase:** `https://geopulse-net.vercel.app` *(or your deployed Vercel URL)*
+- **Live Web Application:** [https://geopulse-f5tx5ivbx-vaibhavnitks-projects.vercel.app/](https://geopulse-f5tx5ivbx-vaibhavnitks-projects.vercel.app/)
 - **GitHub Repository:** [github.com/VaibhavNITK/geopulse-cli](https://github.com/VaibhavNITK/geopulse-cli)
 
 ---
