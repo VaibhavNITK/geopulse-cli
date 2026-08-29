@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Stat fields
     const valIp = document.getElementById("val-ip");
-    const valCountry = document.getElementById("val-country");
     const valLocation = document.getElementById("val-location");
     const valCoords = document.getElementById("val-coords");
     const valIsp = document.getElementById("val-isp");
@@ -21,20 +20,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const valTz = document.getElementById("val-tz");
     const valLatency = document.getElementById("val-latency");
 
-    // Initialize Leaflet Map
+    // Initialize Leaflet Map (Using Public Esri Dark Gray Base Tiles - No API Key Required)
     function initMap(lat = 20, lon = 77) {
         if (!map) {
-            map = L.map("map").setView([lat, lon], 5);
-            L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-                attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
-                maxZoom: 18,
+            map = L.map("map").setView([lat, lon], 4);
+            L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+                attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+                maxZoom: 16,
             }).addTo(map);
         }
     }
 
     function updateMap(lat, lon, title) {
         if (!map) initMap(lat, lon);
-        map.flyTo([lat, lon], 10, { duration: 1.5 });
+        map.flyTo([lat, lon], 9, { duration: 1.5 });
 
         if (marker) {
             map.removeLayer(marker);
@@ -42,9 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const customIcon = L.divIcon({
             className: 'custom-map-pin',
-            html: `<div style="background-color: #00f2fe; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 15px #00f2fe;"></div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
+            html: `<div style="background-color: #00f2fe; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 18px #00f2fe;"></div>`,
+            iconSize: [22, 22],
+            iconAnchor: [11, 11]
         });
 
         marker = L.marker([lat, lon], { icon: customIcon }).addTo(map)
@@ -53,46 +52,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Fetch IP Geolocation Data
-    async function fetchGeoData(ip = "") {
+    async function fetchGeoData(target = "") {
         setLoading(true);
         const startTime = performance.now();
 
         try {
-            const url = `https://ipapi.co/${ip}/json/`;
+            const url = target ? `https://ipapi.co/${target}/json/` : `https://ipapi.co/json/`;
             const resp = await fetch(url);
             const data = await resp.json();
             const latency = Math.round(performance.now() - startTime);
 
             if (data.error || data.reason) {
                 // Fallback to ip-api
-                const fbResp = await fetch(`http://ip-api.com/json/${ip}`);
+                const fbResp = await fetch(`https://ipapi.co/${target}/json/`);
                 const fbData = await fbResp.json();
-                if (fbData.status === "success") {
-                    renderData({
-                        ip: fbData.query,
-                        country_name: fbData.country,
-                        country_code: fbData.countryCode,
-                        region: fbData.regionName,
-                        city: fbData.city,
-                        latitude: fbData.lat,
-                        longitude: fbData.lon,
-                        org: fbData.org || fbData.isp,
-                        asn: fbData.as,
-                        timezone: fbData.timezone
-                    }, latency, ip === "");
-                } else {
-                    alert("Unable to resolve IP geolocation.");
-                }
+                renderData(fbData, latency, target === "");
             } else {
-                renderData(data, latency, ip === "");
+                renderData(data, latency, target === "");
             }
         } catch (err) {
             console.error("Fetch error:", err);
-            // Backup fetch to ip-api HTTP
             try {
-                const fbResp = await fetch(`https://ipapi.co/${ip}/json/`);
+                const fbResp = await fetch(`https://ipapi.co/${target}/json/`);
                 const fbData = await fbResp.json();
-                renderData(fbData, Math.round(performance.now() - startTime), ip === "");
+                renderData(fbData, Math.round(performance.now() - startTime), target === "");
             } catch (e) {
                 alert("Network error fetching IP geolocation.");
             }
@@ -103,19 +86,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderData(data, latency, isSelf) {
         valIp.textContent = data.ip || "--";
-        valCountry.textContent = `${data.country_name || ''} (${data.country_code || ''})`;
-        valLocation.textContent = `${data.city || ''}, ${data.region || ''}`;
+        valLocation.textContent = `${data.city || ''}, ${data.region || ''} | ${data.country_name || ''} (${data.country_code || ''})`;
         valCoords.textContent = `${data.latitude || 0}, ${data.longitude || 0}`;
         valIsp.textContent = data.org || data.network || "--";
         valAsn.textContent = data.asn || data.asn || "--";
         valTz.textContent = data.timezone || "--";
         valLatency.textContent = `${latency} ms`;
 
-        queryBadge.textContent = isSelf ? "My IP" : "Target Search";
+        queryBadge.textContent = isSelf ? "My Network" : "Target Diagnostics";
         queryBadge.className = isSelf ? "badge badge-success" : "badge badge-primary";
 
         if (data.latitude && data.longitude) {
-            updateMap(data.latitude, data.longitude, `${data.ip} (${data.city || 'Location'})`);
+            updateMap(data.latitude, data.longitude, `${data.ip} (${data.city || 'Target'})`);
         }
     }
 
