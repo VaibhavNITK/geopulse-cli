@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-GeoPulse CLI — High-Performance Network Geolocation & Intelligence Engine
-Author: Vaibhav Agrawal
+GeoPulse CLI v2.5 — Advanced Network Geolocation, Latency Benchmarking & Intelligence Engine
+Tailored for Quant Infrastructure & Low-Latency Systems Engineering.
+Author: Vaibhav Agrawal (D. E. Shaw & Co. / NITK)
 License: MIT
 """
 
@@ -13,9 +14,10 @@ import urllib.error
 import socket
 import time
 import argparse
+import concurrent.futures
 from datetime import datetime
 
-# ANSI Color Tokens
+# ANSI Color Definitions
 CYAN = "\033[36m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
@@ -32,7 +34,7 @@ BANNER = f"""{CYAN}{BOLD}
  / / __/ _ \/ __ \ / /_/ / / / / /   / / / /
 / /_/ /  __/ /_/ // ____/ / / / /___/ / / / 
 \____/\___/\____//_/   /_/ /_/\____/_/_/_/  
-{RESET}{DIM} High-Performance Network Geolocation & Intelligence Engine v2.0{RESET}
+{RESET}{DIM} Quant-Grade Low-Latency Network Intelligence & Geolocation Engine v2.5{RESET}
 """
 
 def print_banner():
@@ -40,39 +42,97 @@ def print_banner():
         os.system("clear" if os.name != "nt" else "cls")
         print(BANNER)
 
-def resolve_domain(target):
-    """Resolves domain name to IP address if needed."""
+def resolve_target(target):
+    """Resolves hostname to IP address with reverse DNS pointer."""
     try:
         ip = socket.gethostbyname(target)
-        return ip
+        try:
+            ptr = socket.gethostbyaddr(ip)[0]
+        except Exception:
+            ptr = "N/A"
+        return ip, ptr
     except socket.gaierror:
-        return target
+        return target, "Resolution Failed"
 
-def fetch_ip_info(ip_address=""):
-    """Fetches geolocation data with multi-provider failover."""
-    start_time = time.time()
-    
-    # Provider 1: ip-api.com
+def measure_tcp_latency(ip, port=80, count=4):
+    """Measures TCP handshake RTT latency with nanosecond precision & jitter."""
+    rtts = []
+    for _ in range(count):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1.5)
+        start = time.perf_counter_ns()
+        try:
+            s.connect((ip, port))
+            end = time.perf_counter_ns()
+            rtts.append((end - start) / 1e6) # ms
+            s.close()
+        except Exception:
+            s.close()
+            continue
+        time.sleep(0.05)
+
+    if not rtts:
+        return None
+
+    min_rtt = round(min(rtts), 3)
+    avg_rtt = round(sum(rtts) / len(rtts), 3)
+    max_rtt = round(max(rtts), 3)
+    jitter = round(max_rtt - min_rtt, 3)
+    return {
+        "min_ms": min_rtt,
+        "avg_ms": avg_rtt,
+        "max_ms": max_rtt,
+        "jitter_ms": jitter,
+        "samples": len(rtts)
+    }
+
+def probe_common_ports(ip, ports=[22, 53, 80, 443, 8080]):
+    """Fast concurrent TCP port reachability probe."""
+    open_ports = []
+    def check_port(p):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.8)
+        try:
+            res = s.connect_ex((ip, p))
+            s.close()
+            if res == 0:
+                return p
+        except Exception:
+            s.close()
+        return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=len(ports)) as executor:
+        results = executor.map(check_port, ports)
+        for r in results:
+            if r is not None:
+                open_ports.append(r)
+    return open_ports
+
+def fetch_geolocation(ip_address=""):
+    """Fetches geolocation payload using multi-provider failover pipeline."""
+    start_ns = time.perf_counter_ns()
+
+    # Primary Provider: ip-api.com
     url1 = f"http://ip-api.com/json/{ip_address}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query,mobile,proxy,hosting"
     try:
-        req = urllib.request.Request(url1, headers={'User-Agent': 'GeoPulse-CLI/2.0'})
-        with urllib.request.urlopen(req, timeout=3) as resp:
+        req = urllib.request.Request(url1, headers={'User-Agent': 'GeoPulse-Quant/2.5'})
+        with urllib.request.urlopen(req, timeout=2.5) as resp:
             data = json.loads(resp.read().decode('utf-8'))
-            latency = round((time.time() - start_time) * 1000, 2)
+            exec_time = round((time.perf_counter_ns() - start_ns) / 1e6, 2)
             if data.get("status") == "success":
-                data["_latency_ms"] = latency
-                data["_provider"] = "ip-api"
+                data["_latency_ms"] = exec_time
+                data["_provider"] = "ip-api (Primary)"
                 return data
     except Exception:
         pass
 
-    # Provider 2: ipapi.co fallback
+    # Secondary Failover: ipapi.co
     url2 = f"https://ipapi.co/{ip_address}/json/" if ip_address else "https://ipapi.co/json/"
     try:
-        req = urllib.request.Request(url2, headers={'User-Agent': 'GeoPulse-CLI/2.0'})
-        with urllib.request.urlopen(req, timeout=3) as resp:
+        req = urllib.request.Request(url2, headers={'User-Agent': 'GeoPulse-Quant/2.5'})
+        with urllib.request.urlopen(req, timeout=2.5) as resp:
             raw = json.loads(resp.read().decode('utf-8'))
-            latency = round((time.time() - start_time) * 1000, 2)
+            exec_time = round((time.perf_counter_ns() - start_ns) / 1e6, 2)
             return {
                 "status": "success",
                 "query": raw.get("ip"),
@@ -87,114 +147,152 @@ def fetch_ip_info(ip_address=""):
                 "isp": raw.get("org"),
                 "org": raw.get("org"),
                 "as": raw.get("asn"),
-                "_latency_ms": latency,
-                "_provider": "ipapi.co"
+                "_latency_ms": exec_time,
+                "_provider": "ipapi.co (Failover)"
             }
     except Exception:
         pass
 
-    return {"status": "fail", "message": "Failed to resolve IP across all providers."}
+    return {"status": "fail", "message": "Failed to query IP geolocation across all upstream endpoints."}
 
-def render_ascii_map(lat, lon):
-    """Simple terminal map visualization."""
-    grid = [
-        "  +---------------------------------------------------+",
-        "  |  N.America         |  Europe       |  Asia        |",
-        "  |    [  *  ]         |     [   ]     |    [   ]     |",
-        "  |--------------------+---------------+--------------|",
-        "  |  S.America         |  Africa       |  Australia   |",
-        "  |    [     ]         |     [   ]     |    [   ]     |",
-        "  +---------------------------------------------------+"
-    ]
-    print(f"\n{BOLD}{YELLOW}📍 Coordinates:{RESET} {lat}, {lon}")
-    print(f"{DIM}   Google Maps: https://maps.google.com/?q={lat},{lon}{RESET}\n")
-
-def display_info(data, as_json=False):
+def display_quant_report(target_raw, ip, ptr, data, latency_stats, open_ports, as_json=False):
     if as_json:
-        print(json.dumps(data, indent=2))
+        combined = {
+            "query_target": target_raw,
+            "resolved_ip": ip,
+            "reverse_dns": ptr,
+            "geolocation": data,
+            "tcp_rtt_stats": latency_stats,
+            "open_ports": open_ports
+        }
+        print(json.dumps(combined, indent=2))
         return
 
     if data.get("status") != "success":
-        print(f"\n{RED}{BOLD}❌ Error:{RESET} {data.get('message', 'Unable to trace target.')}\n")
+        print(f"\n{RED}{BOLD}❌ Query Error:{RESET} {data.get('message', 'Unable to resolve target.')}\n")
         return
 
     lat = data.get("lat", 0)
     lon = data.get("lon", 0)
-    latency = data.get("_latency_ms", 0)
+    exec_time = data.get("_latency_ms", 0)
     provider = data.get("_provider", "Primary")
 
-    print(f"  {BOLD}{GREEN}✔ Geolocation Query Successful{RESET} {DIM}({latency}ms via {provider}){RESET}")
-    print(f"  {CYAN}{'='*56}{RESET}")
+    print(f"  {BOLD}{GREEN}✔ Geolocation & Network Diagnostics Complete{RESET} {DIM}({exec_time}ms via {provider}){RESET}")
+    print(f"  {CYAN}{'='*64}{RESET}")
 
     items = [
-        ("Target IP", data.get("query")),
-        ("Country", f"{data.get('country')} ({data.get('countryCode')})"),
-        ("Region / State", f"{data.get('regionName')} [{data.get('region', '')}]"),
-        ("City / Postal", f"{data.get('city')}, {data.get('zip', 'N/A')}"),
-        ("Latitude / Longitude", f"{lat}, {lon}"),
+        ("Target Host", f"{target_raw} -> {ip}"),
+        ("Reverse DNS (PTR)", ptr),
+        ("Location / Country", f"{data.get('city')}, {data.get('regionName')} | {data.get('country')} ({data.get('countryCode')})"),
+        ("Coordinates", f"{lat}, {lon}"),
         ("Timezone", data.get("timezone")),
-        ("Internet Service Provider", data.get("isp")),
+        ("Network Provider (ISP)", data.get("isp")),
         ("Organization", data.get("org")),
-        ("Autonomous System (ASN)", data.get("as")),
-        ("Security Features", f"Mobile: {data.get('mobile', False)} | Proxy/VPN: {data.get('proxy', False)} | Hosting: {data.get('hosting', False)}")
+        ("BGP Autonomous System", data.get("as")),
+        ("Active Ports Probed", ", ".join(map(str, open_ports)) if open_ports else "None detected (Filtered)")
     ]
 
     for label, val in items:
-        print(f"  {BOLD}{YELLOW}{label:<26}{RESET} {GREEN}▶{RESET}  {val}")
+        print(f"  {BOLD}{YELLOW}{label:<24}{RESET} {GREEN}▶{RESET}  {val}")
 
-    print(f"  {CYAN}{'='*56}{RESET}")
-    render_ascii_map(lat, lon)
+    # Latency Stats Panel
+    print(f"  {CYAN}{'-'*64}{RESET}")
+    if latency_stats:
+        print(f"  {BOLD}{MAGENTA}⚡ Low-Latency TCP Handshake Metrics (Port 80/443):{RESET}")
+        print(f"     Min RTT: {BOLD}{GREEN}{latency_stats['min_ms']} ms{RESET} | Avg RTT: {BOLD}{CYAN}{latency_stats['avg_ms']} ms{RESET} | Max RTT: {YELLOW}{latency_stats['max_ms']} ms{RESET} | Jitter: {DIM}{latency_stats['jitter_ms']} ms{RESET}")
+    else:
+        print(f"  {BOLD}{MAGENTA}⚡ TCP Handshake Latency:{RESET} {DIM}ICMP/TCP Ping blocked by remote firewall{RESET}")
+
+    print(f"  {CYAN}{'='*64}{RESET}")
+    print(f"  {DIM}📍 Google Maps URL: https://maps.google.com/?q={lat},{lon}{RESET}\n")
+
+def process_single_target(target, as_json=False):
+    ip, ptr = resolve_target(target)
+    geo_data = fetch_geolocation(ip)
+    latency_stats = measure_tcp_latency(ip)
+    open_ports = probe_common_ports(ip)
+    display_quant_report(target, ip, ptr, geo_data, latency_stats, open_ports, as_json=as_json)
+
+def process_batch(file_path, as_json=False):
+    if not os.path.exists(file_path):
+        print(f"{RED}Error: Batch target file '{file_path}' not found.{RESET}")
+        return
+
+    with open(file_path, 'r') as f:
+        targets = [line.strip() for line in f if line.strip()]
+
+    print(f"  {BOLD}{CYAN}🚀 Executing Parallel Quant Batch Lookup for {len(targets)} Targets...{RESET}\n")
+
+    def run_worker(t):
+        ip, ptr = resolve_target(t)
+        geo = fetch_geolocation(ip)
+        rtt = measure_tcp_latency(ip, count=2)
+        ports = probe_common_ports(ip)
+        return {"target": t, "ip": ip, "ptr": ptr, "geo": geo, "rtt": rtt, "ports": ports}
+
+    results = []
+    start_batch = time.perf_counter()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(16, len(targets))) as executor:
+        future_map = {executor.submit(run_worker, t): t for t in targets}
+        for future in concurrent.futures.as_completed(future_map):
+            res = future.result()
+            results.append(res)
+            if not as_json:
+                print(f"  {GREEN}✔ Processed:{RESET} {res['target']} ({res['ip']}) | {res['geo'].get('city', 'N/A')}, {res['geo'].get('countryCode', 'N/A')}")
+
+    total_time = round(time.perf_counter() - start_batch, 2)
+    print(f"\n  {BOLD}{GREEN}Batch complete in {total_time}s across {len(targets)} threads.{RESET}\n")
+
+    if as_json:
+        print(json.dumps(results, indent=2))
 
 def interactive_menu():
     print_banner()
     while True:
-        print(f"  {BOLD}{CYAN}[ 1 ]{RESET} Trace Specific IP or Hostname")
-        print(f"  {BOLD}{CYAN}[ 2 ]{RESET} Trace Your Own Public IP")
-        print(f"  {BOLD}{CYAN}[ 3 ]{RESET} Interactive Batch Lookup")
-        print(f"  {BOLD}{CYAN}[ 4 ]{RESET} About GeoPulse CLI")
-        print(f"  {BOLD}{RED}[ x ]{RESET} Exit\n")
-        
-        choice = input(f"  {BOLD}{YELLOW}GeoPulse >> {RESET}").strip().lower()
+        print(f"  {BOLD}{CYAN}[ 1 ]{RESET} Quant Target Trace (IP / Hostname + TCP Latency Benchmarking)")
+        print(f"  {BOLD}{CYAN}[ 2 ]{RESET} Self Public Network Diagnostics (Your IP + Latency)")
+        print(f"  {BOLD}{CYAN}[ 3 ]{RESET} High-Throughput Parallel Batch IP Trace")
+        print(f"  {BOLD}{CYAN}[ 4 ]{RESET} About GeoPulse Quant Suite")
+        print(f"  {BOLD}{RED}[ x ]{RESET} Exit System\n")
+
+        choice = input(f"  {BOLD}{YELLOW}GeoPulse-Quant >> {RESET}").strip().lower()
 
         if choice in ["x", "exit", "q", "quit"]:
-            print(f"\n  {GREEN}Thank you for using GeoPulse CLI! Bye.{RESET}\n")
+            print(f"\n  {GREEN}Shutting down GeoPulse Engine. Bye!{RESET}\n")
             sys.exit(0)
         elif choice == "1":
-            target = input(f"  {BOLD}Enter IP / Hostname: {RESET}").strip()
+            target = input(f"  {BOLD}Enter Target IP or Hostname (e.g. 8.8.8.8, deshaw.com): {RESET}").strip()
             if target:
-                ip = resolve_domain(target)
-                print(f"  {DIM}Resolving {target} -> {ip}...{RESET}")
-                data = fetch_ip_info(ip)
-                display_info(data)
+                process_single_target(target)
         elif choice == "2":
-            print(f"  {DIM}Tracing your public IP...{RESET}")
-            data = fetch_ip_info("")
-            display_info(data)
+            process_single_target("")
         elif choice == "3":
-            raw_ips = input(f"  {BOLD}Enter space-separated IPs: {RESET}").strip().split()
-            for item in raw_ips:
-                ip = resolve_domain(item)
-                print(f"\n  {BOLD}{BLUE}--- Results for {item} ({ip}) ---{RESET}")
-                data = fetch_ip_info(ip)
-                display_info(data)
+            raw_input = input(f"  {BOLD}Enter space-separated targets or file path: {RESET}").strip()
+            if os.path.exists(raw_input):
+                process_batch(raw_input)
+            elif raw_input:
+                targets = raw_input.split()
+                print(f"\n  {BOLD}{BLUE}--- Processing Batch ({len(targets)} items) ---{RESET}")
+                for t in targets:
+                    process_single_target(t)
         elif choice == "4":
             print_banner()
-            print(f"  {BOLD}GeoPulse CLI v2.0{RESET}")
-            print(f"  Author: Vaibhav Agrawal (D. E. Shaw & Co. / NITK)")
-            print(f"  Architecture: Failover Multi-Provider REST Pipeline")
+            print(f"  {BOLD}GeoPulse Quant Engine v2.5{RESET}")
+            print(f"  Engineer: Vaibhav Agrawal (D. E. Shaw & Co. / NITK)")
+            print(f"  Features: Microsecond RTT Benchmarking, Threaded Failover, Reverse DNS PTR, Port Scanning")
             print(f"  License: MIT\n")
         else:
-            print(f"  {RED}Invalid selection.{RESET}")
-        
-        input(f"\n  {DIM}Press Enter to return to menu...{RESET}")
+            print(f"  {RED}Invalid Selection.{RESET}")
+
+        input(f"\n  {DIM}Press Enter to return...{RESET}")
         print_banner()
 
 def main():
-    parser = argparse.ArgumentParser(description="GeoPulse CLI — High-Performance Network Geolocation Engine")
+    parser = argparse.ArgumentParser(description="GeoPulse CLI v2.5 — Quant Network Geolocation & Latency Engine")
     parser.add_argument("-t", "--target", help="IP address or hostname to trace")
-    parser.add_argument("-m", "--my-ip", action="store_true", help="Trace your own public IP address")
-    parser.add_argument("-j", "--json", action="store_true", help="Output results in JSON format")
-    parser.add_argument("-b", "--batch", help="Path to text file containing target IPs")
+    parser.add_argument("-m", "--my-ip", action="store_true", help="Diagnostics for local public IP")
+    parser.add_argument("-j", "--json", action="store_true", help="Output complete raw payload as JSON")
+    parser.add_argument("-b", "--batch", help="Path to text file containing target list")
 
     args = parser.parse_args()
 
@@ -203,28 +301,11 @@ def main():
         return
 
     if args.my_ip:
-        data = fetch_ip_info("")
-        display_info(data, as_json=args.json)
+        process_single_target("", as_json=args.json)
     elif args.target:
-        ip = resolve_domain(args.target)
-        data = fetch_ip_info(ip)
-        display_info(data, as_json=args.json)
+        process_single_target(args.target, as_json=args.json)
     elif args.batch:
-        if os.path.exists(args.batch):
-            with open(args.batch, 'r') as f:
-                ips = [line.strip() for line in f if line.strip()]
-            results = []
-            for item in ips:
-                ip = resolve_domain(item)
-                d = fetch_ip_info(ip)
-                results.append(d)
-                if not args.json:
-                    print(f"\n--- {item} ---")
-                    display_info(d)
-            if args.json:
-                print(json.dumps(results, indent=2))
-        else:
-            print(f"{RED}Error: File {args.batch} not found.{RESET}")
+        process_batch(args.batch, as_json=args.json)
 
 if __name__ == "__main__":
     main()

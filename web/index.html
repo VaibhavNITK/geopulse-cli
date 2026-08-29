@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoPulse — Network Geolocation & Threat Intelligence Engine</title>
-    <meta name="description" content="High-performance network geolocation & threat intelligence portal. Trace IPs, domains, ASNs, and interactive map location with sub-second latency.">
+    <title>GeoPulse Quant — High-Performance Network Intelligence Engine</title>
+    <meta name="description" content="Quant-grade network intelligence portal. Trace IPs, TCP handshake latency, BGP ASNs, reverse DNS, and geospatial maps with sub-millisecond precision.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <!-- FontAwesome & Leaflet CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -20,15 +20,15 @@
     <!-- Navigation Header -->
     <header class="navbar">
         <div class="brand">
-            <div class="logo-icon"><i class="fa-solid fa-earth-americas"></i></div>
+            <div class="logo-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
             <div class="brand-text">
-                <span class="brand-name">GeoPulse</span>
-                <span class="brand-tag">v2.0 CLI & Web</span>
+                <span class="brand-name">GeoPulse Quant</span>
+                <span class="brand-tag">v2.5 Low-Latency Engine</span>
             </div>
         </div>
         <div class="nav-links">
             <a href="https://github.com/VaibhavNITK/NITK-IP-GEOLOCATION" target="_blank" class="btn btn-github">
-                <i class="fa-brands fa-github"></i> Star on GitHub
+                <i class="fa-brands fa-github"></i> GitHub Repo
             </a>
         </div>
     </header>
@@ -37,25 +37,25 @@
     <main class="container">
         <!-- Hero Search Section -->
         <section class="hero-section">
-            <h1 class="hero-title">High-Performance <span class="gradient-text">Network Geolocation</span></h1>
-            <p class="hero-subtitle">Trace any IP address, hostname, or ASN in real-time with multi-provider failover and interactive geospatial mapping.</p>
+            <h1 class="hero-title">Quant-Grade <span class="gradient-text">Network Geolocation Engine</span></h1>
+            <p class="hero-subtitle">High-frequency IP tracing, microsecond RTT benchmarking, BGP ASN extraction, and interactive geospatial mapping.</p>
 
             <form id="search-form" class="search-bar">
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" id="target-input" placeholder="Enter IP address or domain (e.g. 8.8.8.8, github.com)..." autocomplete="off" required>
+                    <i class="fa-solid fa-network-wired search-icon"></i>
+                    <input type="text" id="target-input" placeholder="Enter IP address or domain (e.g. deshaw.com, 1.1.1.1, 8.8.8.8)..." autocomplete="off" required>
                 </div>
                 <button type="submit" id="search-btn" class="btn btn-primary">
-                    <span id="btn-text"><i class="fa-solid fa-location-crosshairs"></i> Trace Target</span>
+                    <span id="btn-text"><i class="fa-solid fa-crosshairs"></i> Run Diagnostics</span>
                     <span id="btn-spinner" class="spinner hidden"></span>
                 </button>
             </form>
 
             <div class="quick-tags">
-                <span>Quick Trace:</span>
-                <button class="chip" data-ip="8.8.8.8">Google DNS (8.8.8.8)</button>
+                <span>Preset Targets:</span>
+                <button class="chip" data-ip="deshaw.com">D. E. Shaw (deshaw.com)</button>
                 <button class="chip" data-ip="1.1.1.1">Cloudflare (1.1.1.1)</button>
-                <button class="chip" data-ip="9.9.9.9">Quad9 (9.9.9.9)</button>
+                <button class="chip" data-ip="8.8.8.8">Google DNS (8.8.8.8)</button>
             </div>
         </section>
 
@@ -64,21 +64,17 @@
             <!-- Left Info Panel -->
             <div class="info-card glass-panel">
                 <div class="card-header">
-                    <h3><i class="fa-solid fa-circle-info"></i> Geolocation Intelligence</h3>
-                    <span id="query-badge" class="badge badge-success">My IP</span>
+                    <h3><i class="fa-solid fa-chart-simple"></i> Diagnostics & Intelligence</h3>
+                    <span id="query-badge" class="badge badge-success">Live Network</span>
                 </div>
 
                 <div class="stats-list">
                     <div class="stat-item">
-                        <span class="stat-label">Target IP</span>
+                        <span class="stat-label">Target / Host</span>
                         <span class="stat-val" id="val-ip">--.--.--.--</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Country</span>
-                        <span class="stat-val" id="val-country">--</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Region / City</span>
+                        <span class="stat-label">Location</span>
                         <span class="stat-val" id="val-location">--</span>
                     </div>
                     <div class="stat-item">
@@ -86,11 +82,11 @@
                         <span class="stat-val" id="val-coords">--</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">ISP & Network</span>
+                        <span class="stat-label">Network Provider (ISP)</span>
                         <span class="stat-val" id="val-isp">--</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">ASN</span>
+                        <span class="stat-label">BGP Autonomous System</span>
                         <span class="stat-val" id="val-asn">--</span>
                     </div>
                     <div class="stat-item">
@@ -98,8 +94,8 @@
                         <span class="stat-val" id="val-tz">--</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Response Time</span>
-                        <span class="stat-val" id="val-latency">-- ms</span>
+                        <span class="stat-label">REST API Latency</span>
+                        <span class="stat-val highlight-val" id="val-latency">-- ms</span>
                     </div>
                 </div>
             </div>
@@ -113,8 +109,8 @@
         <!-- CLI Installation Widget -->
         <section class="cli-widget glass-panel">
             <div class="cli-info">
-                <h3><i class="fa-solid fa-terminal"></i> Prefer Command Line? Install GeoPulse CLI</h3>
-                <p>Run instant terminal IP traces, batch processing, and JSON exports directly on Linux, macOS, or Termux.</p>
+                <h3><i class="fa-solid fa-terminal"></i> GeoPulse CLI v2.5 One-Liner Installer</h3>
+                <p>Run microsecond TCP handshake benchmarking, concurrent thread tracing, and JSON output natively in your terminal.</p>
             </div>
             <div class="code-box">
                 <code>curl -fsSL https://raw.githubusercontent.com/VaibhavNITK/NITK-IP-GEOLOCATION/main/install.sh | bash</code>
@@ -127,8 +123,8 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <p>Engineered by <strong>Vaibhav Agrawal</strong> — D. E. Shaw & Co. / NITK Surathkal</p>
-        <p class="sub-footer">GeoPulse Engine v2.0 • Powered by Multi-Provider Failover APIs & Leaflet.js</p>
+        <p>Engineered by <strong>Vaibhav Agrawal</strong> — Member of Technical Staff, D. E. Shaw & Co. | NITK Surathkal</p>
+        <p class="sub-footer">GeoPulse Quant Engine v2.5 • Multi-Threaded Low-Latency Networking Architecture</p>
     </footer>
 
     <!-- Leaflet & App JS -->
